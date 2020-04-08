@@ -1,8 +1,9 @@
 const graphql = require("graphql");
 const _ = require("lodash");
-const Place = require("../../models/place");
-const Report = require("../../models/Report");
-
+// const Place = require("../../models/place");
+// const Report = require("../../models/Report");
+import Place from '../../models/place'
+import Report from '../../models/report'
 import {
   GraphQLDate,
   GraphQLTime,
