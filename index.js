@@ -29,6 +29,32 @@ app.use('/graphql', graphqlHTTP({
 //   bodyParser.json()
 // );
 
+const fetch = require('node-fetch');
+
+// globals
+const interval = 25*60*1000; // interval in milliseconds - {25mins x 60s x 1000}ms
+const url = 'http://tp-report-backend/graphql'
+
+(function wake() {
+
+  try {
+
+    const handler = setInterval(() => {
+
+      fetch(url)
+        .then(res => console.log(`response-ok: ${res.ok}, status: ${res.status}`)
+        .catch(err => console.error(`Error occured: ${err}`));
+
+    }, interval);
+
+  } catch(err) {
+      console.error('Error occured: retrying...);
+      clearInterval(handler);
+      return setTimeout(() => wake(), 10000);
+  };
+
+})();
+
 function main() {
   const port = process.env.PORT || 8080;
   const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0-om3us.mongodb.net/test?retryWrites=true&w=majority`;
