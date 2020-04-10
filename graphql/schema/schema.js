@@ -2,13 +2,10 @@ const graphql = require("graphql");
 const _ = require("lodash");
 // const Place = require("../../models/place");
 // const Report = require("../../models/Report");
-import Place from '../../models/place'
-import Report from '../../models/report'
-import {
-  GraphQLDate,
-  GraphQLTime,
-  GraphQLDateTime
-} from 'graphql-iso-date';
+import Place from "../../models/place";
+import Report from "../../models/report";
+import SearchTerm from '../../models/searchTerm'
+import { GraphQLDate, GraphQLTime, GraphQLDateTime } from "graphql-iso-date";
 
 const {
   GraphQLObjectType,
@@ -22,16 +19,7 @@ const {
   GraphQLFloat,
 } = graphql;
 
-
 // define the objects
-
-const TermType = new GraphQLObjectType({
-  name: "Term",
-  fields: () => ({
-    id: { type: GraphQLID },
-    location: { type: GraphQLString },
-  }),
-});
 
 const PlaceType = new GraphQLObjectType({
   name: "Place",
@@ -61,7 +49,7 @@ const ReportType = new GraphQLObjectType({
     status: { type: GraphQLString },
     placeId: { type: GraphQLString },
     googleId: { type: GraphQLString },
-    dateTime: {type: GraphQLDateTime},
+    dateTime: { type: GraphQLDateTime },
     place: {
       type: PlaceType,
       resolve(parent, args) {
@@ -74,19 +62,33 @@ const ReportType = new GraphQLObjectType({
   }),
 });
 
+const SearchTermType = new GraphQLObjectType({
+  name: "SearchTerm",
+  fields: () => ({
+    id: { type: GraphQLID },
+    term: { type: GraphQLString },
+    dateTime: { type: GraphQLDateTime },
+  }),
+});
+
 // define queries and mutations
 
 const RootQuery = new GraphQLObjectType({
   name: "RootQueryType",
   fields: {
-    term: {
+    searchterm: {
       // this will be used to collect user search data
-      type: TermType,
+      type: SearchTermType,
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
-        //code to get data from db / other source
-        // console.log(typeof args.id);
-        // return _.find(terms, { id: args.id });
+        return SearchTerm.findById(args.id);
+      },
+    },
+    searchterms: {
+      // this will be used to collect user search data
+      type: new GraphQLList(SearchTermType),
+      resolve(parent, args) {
+        return SearchTerm.find({});
       },
     },
     place: {
@@ -109,10 +111,10 @@ const RootQuery = new GraphQLObjectType({
       async resolve(parent, args) {
         // return _.filter(places, { lat: args.lat, lng: args.lng });
         try {
-          const places = await Place.find({})
-          return places
+          const places = await Place.find({});
+          return places;
         } catch (error) {
-          throw error
+          throw error;
         }
         // is this where I want to fetch on the backend?
         // return Place.find({});
@@ -145,6 +147,20 @@ const RootQuery = new GraphQLObjectType({
 const Mutation = new GraphQLObjectType({
   name: "Mutation",
   fields: {
+    addTerm: {
+      type: SearchTermType,
+      args: {
+        term: { type: GraphQLString },
+        dateTime: { type: GraphQLDateTime },
+      },
+      resolve(parent, args) {
+        let term = new SearchTerm({
+          term: args.term,
+          dateTime: new Date().toISOString()
+        });
+        return term.save();
+      },
+    },
     addPlace: {
       type: PlaceType,
       args: {
@@ -177,30 +193,32 @@ const Mutation = new GraphQLObjectType({
         // googleId: { type: new GraphQLNonNull(GraphQLID) },
       },
       resolve(parent, args) {
-
         // console.log(typeof args.googleId, args.googleId);
-        console.log('placeName', args.placeName)
-        console.log('args.dateTime', args.dateTime)
-        
+        console.log("placeName", args.placeName);
+        console.log("args.dateTime", args.dateTime);
+
         // search for already existing place
-        const place = Place.findOne({ googleId: args.googleId }, (err, result)=> {
-          console.log('found place', result)
-          if (!result) {
-            console.log('creating new place')
-            let newPlace = new Place({
-              name: args.placeName,
-              googleId: args.googleId,
-            });
-            newPlace.save();
+        const place = Place.findOne(
+          { googleId: args.googleId },
+          (err, result) => {
+            console.log("found place", result);
+            if (!result) {
+              console.log("creating new place");
+              let newPlace = new Place({
+                name: args.placeName,
+                googleId: args.googleId,
+              });
+              newPlace.save();
+            }
           }
-        });
-       //return new place and new report
+        );
+        //return new place and new report
 
         let report = new Report({
           itemName: "toilet paper",
           googleId: args.googleId,
           status: args.status,
-          dateTime: new Date().toISOString()
+          dateTime: new Date().toISOString(),
         });
         return report.save();
       },
