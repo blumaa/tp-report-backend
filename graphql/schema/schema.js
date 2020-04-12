@@ -151,7 +151,7 @@ const Mutation = new GraphQLObjectType({
       type: SearchTermType,
       args: {
         term: { type: GraphQLString },
-        dateTime: { type: GraphQLDateTime },
+        dateTime: { type: GraphQLString },
       },
       resolve(parent, args) {
         let term = new SearchTerm({
@@ -189,7 +189,7 @@ const Mutation = new GraphQLObjectType({
         status: { type: GraphQLString },
         placeId: { type: GraphQLString },
         googleId: { type: GraphQLString },
-        dateTime: { type: GraphQLDateTime },
+        dateTime: { type: GraphQLString },
         // googleId: { type: new GraphQLNonNull(GraphQLID) },
       },
       resolve(parent, args) {
