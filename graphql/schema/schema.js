@@ -156,7 +156,7 @@ const Mutation = new GraphQLObjectType({
       resolve(parent, args) {
         let term = new SearchTerm({
           term: args.term,
-          dateTime: new Date().toISOString()
+          dateTime: new Date().toUTCString()
         });
         return term.save();
       },
@@ -218,7 +218,7 @@ const Mutation = new GraphQLObjectType({
           itemName: "toilet paper",
           googleId: args.googleId,
           status: args.status,
-          dateTime: new Date().toISOString(),
+          dateTime: new Date().toUTCString(),
         });
         return report.save();
       },
