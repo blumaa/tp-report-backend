@@ -151,12 +151,12 @@ const Mutation = new GraphQLObjectType({
       type: SearchTermType,
       args: {
         term: { type: GraphQLString },
-        dateTime: { type: GraphQLString },
+        dateTime: { type: GraphQLDateTime },
       },
       resolve(parent, args) {
         let term = new SearchTerm({
           term: args.term,
-          dateTime: new Date().toUTCString()
+          dateTime: new Date().toISOString()
         });
         return term.save();
       },
@@ -189,7 +189,7 @@ const Mutation = new GraphQLObjectType({
         status: { type: GraphQLString },
         placeId: { type: GraphQLString },
         googleId: { type: GraphQLString },
-        dateTime: { type: GraphQLString },
+        dateTime: { type: GraphQLDateTime },
         // googleId: { type: new GraphQLNonNull(GraphQLID) },
       },
       resolve(parent, args) {
@@ -218,7 +218,7 @@ const Mutation = new GraphQLObjectType({
           itemName: "toilet paper",
           googleId: args.googleId,
           status: args.status,
-          dateTime: new Date().toUTCString(),
+          dateTime: new Date().toISOString(),
         });
         return report.save();
       },
