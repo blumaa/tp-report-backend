@@ -49,7 +49,7 @@ function wake() {
 }
 
 
-// wake()
+wake()
 
 function main() {
   const port = process.env.PORT || 8080;
