@@ -195,13 +195,13 @@ const Mutation = new GraphQLObjectType({
       resolve(parent, args) {
         // console.log(typeof args.googleId, args.googleId);
         console.log("placeName", args.placeName);
-        console.log("args.dateTime", args.dateTime);
+        // console.log("args.dateTime", args.dateTime);
 
         // search for already existing place
         const place = Place.findOne(
           { googleId: args.googleId },
           (err, result) => {
-            console.log("found place", result);
+            // console.log("found place", result);
             if (!result) {
               console.log("creating new place");
               let newPlace = new Place({
@@ -213,13 +213,36 @@ const Mutation = new GraphQLObjectType({
           }
         );
         //return new place and new report
+        Date.prototype.toIsoString = function() {
+          var tzo = -this.getTimezoneOffset(),
+              dif = tzo >= 0 ? '+' : '-',
+              pad = function(num) {
+                  var norm = Math.floor(Math.abs(num));
+                  return (norm < 10 ? '0' : '') + norm;
+              };
+          return this.getFullYear() +
+              '-' + pad(this.getMonth() + 1) +
+              '-' + pad(this.getDate()) +
+              'T' + pad(this.getHours()) +
+              ':' + pad(this.getMinutes()) +
+              ':' + pad(this.getSeconds()) +
+              dif + pad(tzo / 60) +
+              ':' + pad(tzo % 60);
+      }
+      
+      let dt = new Date();
+      console.log('dt', dt.toIsoString());
+      
+        // const currTime = new Date().toLocaleString()
+        // console.log('currtime', currTime)
 
         let report = new Report({
           itemName: "toilet paper",
           googleId: args.googleId,
           status: args.status,
-          dateTime: new Date().toISOString(),
+          dateTime: dt.toIsoString(),
         });
+        console.log('report', report)
         return report.save();
       },
     },
